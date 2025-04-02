@@ -1,0 +1,82 @@
+﻿{
+   "CodeGenerationMode": 4,
+   "ContextClassName": "AppDbContext",
+   "ContextNamespace": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "Models",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "MesaCore",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 2,
+   "SelectedToBeGenerated": 0,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[dbo].[CLIENTEIMPRESORASFX]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ESTATUSIMPRESORASFX]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ESTATUSPROYECTOIMPRESORASFX]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[IMPRESIONESESTADISTICAS]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[IMPRESORASCUFX]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[IMPRESORASFX]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PLANTAIMPRESORASFX]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[REGISTRODEIMPRESORASFX]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SOLICITANTEIMPRESORAFX]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[USUARIO]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": null,
+   "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDateOnlyTimeOnly": true,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false
+}
