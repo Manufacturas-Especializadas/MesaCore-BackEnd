@@ -287,6 +287,5 @@ namespace MesaCore.Controllers
 
             return StatusCode(StatusCodes.Status200OK, new { mensajes = "ok" });
         }
-
     }
 }
