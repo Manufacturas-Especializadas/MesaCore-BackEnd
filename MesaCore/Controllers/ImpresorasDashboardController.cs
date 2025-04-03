@@ -50,7 +50,7 @@ namespace MesaCore.Controllers
                         <p><strong>Comentarios: </strong> {registro.Comentarios ?? "Sin comentarios"}</p>
                         <p><strong>Archivo: </strong> {(string.IsNullOrEmpty(registro.Archivo) ? "Sin archivo" : $"<a href='{registro.Archivo}'>Descargar archivo</a>")}</p>";
 
-                await _emailServices.SendEmailAsync("auxiliar.innovacion@mesa.ms", "Nuevo registro", emailBody);
+                await _emailServices.SendEmailAsync("angel.medina@mesa.ms", "Nuevo registro", emailBody);
 
                 return Ok(new
                 {
