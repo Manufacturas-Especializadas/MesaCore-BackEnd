@@ -84,5 +84,6 @@ namespace MesaCore.Controllers
 
             return Ok(new { token = newToken });
         }
+
     }
 }
