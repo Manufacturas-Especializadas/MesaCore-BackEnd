@@ -74,7 +74,6 @@ namespace MesaCore.Controllers
 
         [HttpGet]
         [Route("Obtener")]
-        [Authorize (Roles = "Admin,Empleado,Jefe,Gerente")]
         public async Task<IActionResult> GetImpresorasCobreAsync()
         {
             var query = await _context.Impresorasfx

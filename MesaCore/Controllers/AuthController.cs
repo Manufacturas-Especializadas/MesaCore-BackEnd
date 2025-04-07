@@ -23,7 +23,6 @@ namespace MesaCore.Controllers
 
         [HttpPost]
         [Route("Registrarse")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Registro(UsuarioDTO usuarioDTO)
         {
             var usuarioExistente = await _context.Usuario.AnyAsync(u => u.Correo == usuarioDTO.Correo);
