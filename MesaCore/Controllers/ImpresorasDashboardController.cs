@@ -26,7 +26,6 @@ namespace MesaCore.Controllers
 
         [HttpPost]
         [Route("Registro")]
-        [Authorize(Roles = "Admin,Empleado,Jefe,Gerente")]
         public async Task<IActionResult> Create([FromForm] Registrodeimpresorasfx registro)
         {
             if (registro == null || registro.FormFile == null || registro.FormFile.Length == 0)
