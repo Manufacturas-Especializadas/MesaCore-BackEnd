@@ -23,6 +23,7 @@ namespace MesaCore.Controllers
 
         [HttpPost]
         [Route("Registrarse")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Registro(UsuarioDTO usuarioDTO)
         {
             var usuarioExistente = await _context.Usuario.AnyAsync(u => u.Correo == usuarioDTO.Correo);
@@ -61,8 +62,7 @@ namespace MesaCore.Controllers
             string refreshToken = _encriptar.RefreshToken();
 
             usuario.RefrescarToken = refreshToken;
-            usuario.Rol = loginDTO.Rol;
-            usuario.FechaDeExpiracionToken = DateTime.UtcNow.AddDays(7);
+            usuario.FechaDeExpiracionToken = DateTime.UtcNow.AddMonths(1);
 
             await _context.SaveChangesAsync();
 
