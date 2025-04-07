@@ -1,5 +1,6 @@
 ﻿using MesaCore.Models;
 using MesaCore.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,7 @@ namespace MesaCore.Controllers
 
         [HttpPost]
         [Route("Registro")]
+        [Authorize(Roles = "Admin,Empleado,Jefe,Gerente")]
         public async Task<IActionResult> Create([FromForm] Registrodeimpresorasfx registro)
         {
             if (registro == null || registro.FormFile == null || registro.FormFile.Length == 0)
