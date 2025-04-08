@@ -74,7 +74,6 @@ namespace MesaCore.Controllers
 
         [HttpGet]
         [Route("Obtener")]
-        [Authorize (Roles = "Admin,Empleado,Jefe,Gerente")]
         public async Task<IActionResult> GetImpresorasCobreAsync()
         {
             var query = await _context.Impresorascufx
@@ -253,7 +252,6 @@ namespace MesaCore.Controllers
         
         [HttpPost]
         [Route("Registrar")]
-        [Authorize (Roles = "Admin")]
         public async Task<Impresorascufx> Create([FromBody] Impresorascufx impresora)
         {
             if (impresora is null)
@@ -269,7 +267,6 @@ namespace MesaCore.Controllers
 
         [HttpPut]
         [Route("Actualizar")]
-        [Authorize (Roles = "Admin")]
         public async Task<IActionResult> Edit([FromBody] Impresorascufx impresorasfx)
         {
             _context.Impresorascufx.Update(impresorasfx);
@@ -280,7 +277,6 @@ namespace MesaCore.Controllers
 
         [HttpDelete]
         [Route("Eliminar/{id:int}")]
-        [Authorize (Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var impresora = await _context.Impresorascufx.FirstOrDefaultAsync(i => i.Id == id);
