@@ -15,6 +15,46 @@ namespace MesaCore.Services
         }
 
 
+        public async Task<string> StoreFileFai(string contenedor, IFormFile archivo)
+        {
+            try
+            {
+                if(archivo == null || archivo.Length == 0)
+                {
+                    throw new ApplicationException("El archivo adjunto no puede estar vacio");
+                }
+
+                var extension = Path.GetExtension(archivo.FileName).ToLower();
+                var extensionesPermitidas = new[] { ".pdf" };
+
+                if (!extensionesPermitidas.Contains(extension))
+                {
+                    throw new ApplicationException("Solo se permiten archivos PDF (.pdf)");
+                }
+
+                var cliente = new BlobContainerClient(_connectionString, contenedor);
+                await cliente.CreateIfNotExistsAsync();
+
+                var nombreArchivo = $"{Guid.NewGuid()}{extension}";
+                var blob = cliente.GetBlobClient(nombreArchivo);
+
+                var contentType = "application/pdf";
+
+                var blobHttpHeaders = new BlobHttpHeaders
+                {
+                    ContentType = contentType,
+                };
+
+                await blob.UploadAsync(archivo.OpenReadStream(), blobHttpHeaders);
+
+                return blob.Uri.ToString();
+            }
+            catch(Exception ex)
+            {
+                throw new ApplicationException("Error al guardar el archivo en azure: ", ex);
+            }
+        }
+
         public async Task<string> StoreFiles(string contenedor, IFormFile archivo)
         {
             try
