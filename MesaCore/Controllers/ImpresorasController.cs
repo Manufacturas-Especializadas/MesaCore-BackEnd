@@ -1,8 +1,10 @@
 ﻿using MesaCore.Models;
+using MesaCore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MesaCore.Controllers
@@ -12,10 +14,13 @@ namespace MesaCore.Controllers
     public class ImpresorasController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly AzureStorageService _azureStorageService;
+        private readonly string _contenedor = "filefai";
 
-        public ImpresorasController(AppDbContext context)
+        public ImpresorasController(AppDbContext context, AzureStorageService azureStorageService)
         {
             _context = context;
+            _azureStorageService = azureStorageService;
         }
 
         [HttpGet]
@@ -254,12 +259,23 @@ namespace MesaCore.Controllers
 
         [HttpPost]
         [Route("Registrar")]
-        [Authorize (Roles = "Admin")]
-        public async Task<Impresorasfx> Create([FromBody] Impresorasfx impresora)
+        public async Task<Impresorasfx> Create([FromForm] Impresorasfx impresora)
         {
-            if (impresora is null)
+            if (impresora is null || impresora.FormFile == null || impresora.FormFile.Length == 0)
             {
-                throw new Exception("Error al registrar la información");
+                throw new Exception("Error al registrar la información, debe ingresar un archivo");
+            }
+
+            try
+            {
+                impresora.ArchivoFai = await _azureStorageService.StoreFileFai(_contenedor, impresora.FormFile);
+
+                await _context.AddAsync(impresora);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error al registrar la información: {ex.Message}");
             }
 
             await _context.Impresorasfx.AddAsync(impresora);
@@ -270,7 +286,6 @@ namespace MesaCore.Controllers
 
         [HttpPut]
         [Route("Actualizar")]
-        [Authorize (Roles = "Admin")]
         public async Task<IActionResult> Edit([FromBody] Impresorasfx impresorasfx)
         {
             _context.Impresorasfx.Update(impresorasfx);
@@ -318,7 +333,6 @@ namespace MesaCore.Controllers
 
         [HttpDelete]
         [Route("Eliminar/{id:int}")]
-        [Authorize (Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var impresora = await _context.Impresorasfx.FirstOrDefaultAsync(i => i.Id == id);
