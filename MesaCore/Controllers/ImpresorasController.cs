@@ -268,7 +268,7 @@ namespace MesaCore.Controllers
 
             try
             {
-                impresora.ArchivoFai = await _azureStorageService.StoreFileFai(_contenedor, impresora.FormFile);
+                //impresora.ArchivoFai = await _azureStorageService.StoreFileFai(_contenedor, impresora.FormFile);
 
                 await _context.AddAsync(impresora);
                 await _context.SaveChangesAsync();
