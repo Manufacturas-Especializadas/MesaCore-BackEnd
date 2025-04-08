@@ -39,6 +39,8 @@ public partial class Impresorascufx
 
     public int? EstatusProyectoId { get; set; }
 
+    public string ArchivoFai { get; set; }
+
     public virtual Clienteimpresorasfx Cliente { get; set; }
 
     public virtual Estatusimpresorasfx Estatus { get; set; }

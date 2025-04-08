@@ -118,6 +118,10 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("IMPRESORASCUFX");
 
+            entity.Property(e => e.ArchivoFai)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("archivoFAI");
             entity.Property(e => e.ClienteId).HasColumnName("clienteId");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(255)
@@ -185,6 +189,10 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("IMPRESORASFX");
 
+            entity.Property(e => e.ArchivoFai)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("archivoFAI");
             entity.Property(e => e.ClienteId).HasColumnName("clienteId");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(255)
