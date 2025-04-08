@@ -259,7 +259,7 @@ namespace MesaCore.Controllers
 
         [HttpPost]
         [Route("Registrar")]
-        public async Task<Impresorasfx> Create([FromForm] Impresorasfx impresora)
+        public async Task<Impresorasfx> Create([FromBody] Impresorasfx impresora)
         {
             if (impresora is null || impresora.FormFile == null || impresora.FormFile.Length == 0)
             {
