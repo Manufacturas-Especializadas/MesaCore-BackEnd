@@ -261,21 +261,9 @@ namespace MesaCore.Controllers
         [Route("Registrar")]
         public async Task<Impresorasfx> Create([FromBody] Impresorasfx impresora)
         {
-            if (impresora is null || impresora.FormFile == null || impresora.FormFile.Length == 0)
+            if (impresora is null)
             {
-                throw new Exception("Error al registrar la información, debe ingresar un archivo");
-            }
-
-            try
-            {
-                //impresora.ArchivoFai = await _azureStorageService.StoreFileFai(_contenedor, impresora.FormFile);
-
-                await _context.AddAsync(impresora);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error al registrar la información: {ex.Message}");
+                throw new Exception("Error al registrar la información");
             }
 
             await _context.Impresorasfx.AddAsync(impresora);
