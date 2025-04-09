@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MesaCore.Models;
 
@@ -40,6 +41,9 @@ public partial class Impresorascufx
     public int? EstatusProyectoId { get; set; }
 
     public string ArchivoFai { get; set; }
+
+    [NotMapped]
+    public IFormFile FormFile { get; set; }
 
     public virtual Clienteimpresorasfx Cliente { get; set; }
 
