@@ -259,17 +259,33 @@ namespace MesaCore.Controllers
 
         [HttpPost]
         [Route("Registrar")]
-        public async Task<Impresorasfx> Create([FromBody] Impresorasfx impresora)
+        public async Task<IActionResult> Create([FromForm] Impresorasfx impresora)
         {
-            if (impresora is null)
+            if (impresora == null)
             {
-                throw new Exception("Error al registrar la información");
+                return BadRequest(new { message = "Los datos de la solicitud son invalidos" });
             }
 
-            await _context.Impresorasfx.AddAsync(impresora);
-            await _context.SaveChangesAsync();
+            try
+            {
+                if(impresora.FormFile != null && impresora.FormFile.Length > 0)
+                {
+                    impresora.ArchivoFai = await _azureStorageService.StoreFileFai(_contenedor, impresora.FormFile);
+                }
+                else
+                {
+                    impresora.ArchivoFai = null;
+                }             
 
-            return impresora;
+                _context.Add(impresora);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Registro exitoso" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Error interno del servidor: {ex.Message}" });
+            }
         }
 
         [HttpPut]

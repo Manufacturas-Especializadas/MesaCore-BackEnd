@@ -1,4 +1,5 @@
 ﻿using MesaCore.Models;
+using MesaCore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,15 @@ namespace MesaCore.Controllers
     public class ImpresorasCobreController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly AzureStorageService _azureStorageService;
+        private readonly string _contenedor = "filefai";
 
-        public ImpresorasCobreController(AppDbContext context)
+        public ImpresorasCobreController(AppDbContext context, 
+                AzureStorageService azureStorageService)
         {
             _context = context;
+            _azureStorageService = azureStorageService;
+
         }
 
         [HttpGet]
@@ -252,17 +258,33 @@ namespace MesaCore.Controllers
         
         [HttpPost]
         [Route("Registrar")]
-        public async Task<Impresorascufx> Create([FromBody] Impresorascufx impresora)
+        public async Task<IActionResult> Create([FromForm] Impresorascufx impresora)
         {
-            if (impresora is null)
+            if(impresora == null)
             {
-                throw new Exception("Error al registrar la información");
+                return BadRequest(new { message = "Los datos de la solicitud son invalidos" });
             }
 
-            await _context.Impresorascufx.AddAsync(impresora);
-            await _context.SaveChangesAsync();
+            try
+            {
+                if(impresora.FormFile != null && impresora.FormFile.Length > 0)
+                {
+                    impresora.ArchivoFai = await _azureStorageService.StoreFileFai(_contenedor, impresora.FormFile);
+                }
+                else
+                {
+                    impresora.ArchivoFai = null;
+                }
 
-            return impresora;
+                _context.Add(impresora);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Registro exitoso" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Error interno del servidor: {ex.Message}" });
+            }
         }
 
         [HttpPut]
