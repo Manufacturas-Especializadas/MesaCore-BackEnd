@@ -290,12 +290,35 @@ namespace MesaCore.Controllers
 
         [HttpPut]
         [Route("Actualizar")]
-        public async Task<IActionResult> Edit([FromBody] Impresorasfx impresorasfx)
+        public async Task<IActionResult> Edit([FromForm] Impresorasfx impresorasfx)
         {
-            _context.Impresorasfx.Update(impresorasfx);
-            await _context.SaveChangesAsync();
 
-            return StatusCode(StatusCodes.Status200OK, new { mensaje = "ok" });
+            if(impresorasfx == null)
+            {
+                BadRequest(new { message = "Los datos de la solicitud son invalidos" });
+            }
+
+            try
+            {
+                if (impresorasfx.FormFile != null && impresorasfx.FormFile.Length > 0)
+                {
+                    impresorasfx.ArchivoFai = await _azureStorageService.StoreFiles(_contenedor, impresorasfx.FormFile);
+                }
+                else
+                {
+                    impresorasfx.ArchivoFai = null;
+                }
+
+                _context.Impresorasfx.Update(impresorasfx);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Registro editado correctamente" });
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = $"Error interno del servidor: {ex.Message}" });
+            }
+
         }
 
         [HttpPatch]
