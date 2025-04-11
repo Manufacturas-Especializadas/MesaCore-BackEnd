@@ -316,7 +316,7 @@ namespace MesaCore.Controllers
                 {
                     try
                     {
-                        existingEntity.ArchivoFai = await _azureStorageService.StoreFileFai(_contenedor, impresorasfx.FormFile)
+                        existingEntity.ArchivoFai = await _azureStorageService.StoreFileFai(_contenedor, impresorasfx.FormFile);
                     }
                     catch(Exception ex)
                     {
