@@ -141,6 +141,7 @@ namespace MesaCore.Controllers
                     i.NParte,
                     i.NDibujo,
                     i.Revision,
+                    i.ArchivoFai,
                     i.EstatusProyecto
                 })
                 .ToListAsync();
@@ -155,6 +156,7 @@ namespace MesaCore.Controllers
                 nombreDelProyecto = g.Key,
                 Estatus = g.First().Estatus.Nombre,
                 EstatusProyecto = g.First().EstatusProyecto.Nombre,
+                ArchivoFAI = g.First().ArchivoFai,
                 Planta = g.First().Planta.Nombre,
                 Solicitante = g.First().Solicitante.Nombre,
                 Cliente = g.First().Cliente.Nombre,
@@ -167,6 +169,7 @@ namespace MesaCore.Controllers
                     i.Planta,
                     i.Cliente,
                     i.Solicitante,
+                    i.ArchivoFai,
                     i.EstatusProyecto
                 }).ToList()
             }).FirstOrDefault();
@@ -289,12 +292,24 @@ namespace MesaCore.Controllers
 
         [HttpPut]
         [Route("Actualizar")]
-        public async Task<IActionResult> Edit([FromBody] Impresorascufx impresorasfx)
+        public async Task<IActionResult> Edit([FromForm] Impresorascufx impresorasfx)
         {
-            _context.Impresorascufx.Update(impresorasfx);
-            await _context.SaveChangesAsync();
+            try
+            {
+                if(impresorasfx.FormFile != null)
+                {
+                    impresorasfx.ArchivoFai = await _azureStorageService.StoreFileFai(_contenedor, impresorasfx.FormFile);
+                }
 
-            return StatusCode(StatusCodes.Status200OK, new { mensaje = "ok" });
+                _context.Impresorascufx.Update(impresorasfx);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Registro editado correctamente" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = $"Error interno del servidor: {ex.Message}" });
+            }
         }
 
         [HttpDelete]

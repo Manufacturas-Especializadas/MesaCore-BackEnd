@@ -140,6 +140,7 @@ namespace MesaCore.Controllers
                                             i.NParte,
                                             i.NDibujo,
                                             i.Revision,
+                                            i.ArchivoFai,
                                             i.EstatusProyecto
                                         })
                                         .ToListAsync();
@@ -155,6 +156,7 @@ namespace MesaCore.Controllers
                 EstatusProyecto = g.First().EstatusProyecto.Nombre,
                 nombreDelProyecto = g.Key,
                 Estatus = g.First().Estatus.Nombre,
+                ArchivoFAI = g.First().ArchivoFai,
                 Planta = g.First().Planta.Nombre,
                 Solicitante = g.First().Solicitante.Nombre,
                 Cliente = g.First().Cliente.Nombre,
@@ -168,6 +170,7 @@ namespace MesaCore.Controllers
                     i.Planta,
                     i.Cliente,
                     i.Solicitante,
+                    i.ArchivoFai,
                     i.EstatusProyecto
                 }).ToList()
             }).FirstOrDefault();
@@ -292,21 +295,11 @@ namespace MesaCore.Controllers
         [Route("Actualizar")]
         public async Task<IActionResult> Edit([FromForm] Impresorasfx impresorasfx)
         {
-
-            if(impresorasfx == null)
-            {
-                BadRequest(new { message = "Los datos de la solicitud son invalidos" });
-            }
-
             try
             {
-                if (impresorasfx.FormFile != null && impresorasfx.FormFile.Length > 0)
+                if(impresorasfx.FormFile != null)
                 {
-                    impresorasfx.ArchivoFai = await _azureStorageService.StoreFiles(_contenedor, impresorasfx.FormFile);
-                }
-                else
-                {
-                    impresorasfx.ArchivoFai = null;
+                    impresorasfx.ArchivoFai = await _azureStorageService.StoreFileFai(_contenedor, impresorasfx.FormFile);
                 }
 
                 _context.Impresorasfx.Update(impresorasfx);
