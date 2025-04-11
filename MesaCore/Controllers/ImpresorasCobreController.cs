@@ -291,24 +291,53 @@ namespace MesaCore.Controllers
         }
 
         [HttpPut]
-        [Route("Actualizar")]
-        public async Task<IActionResult> Edit([FromForm] Impresorascufx impresorasfx)
+        [Route("Actualizar/{id:int}")]
+        public async Task<IActionResult> Edit(int id,[FromForm] Impresorascufx impresorasfx)
         {
             try
             {
-                if(impresorasfx.FormFile != null)
+                var existingEntity = await _context.Impresorascufx.FindAsync(id);
+
+                if (existingEntity == null)
                 {
-                    impresorasfx.ArchivoFai = await _azureStorageService.StoreFileFai(_contenedor, impresorasfx.FormFile);
+                    return NotFound(new { message = "Registro no encontrado" });
                 }
 
-                _context.Impresorascufx.Update(impresorasfx);
+                foreach (var property in typeof(Impresorascufx).GetProperties())
+                {
+                    if(property.Name != nameof(Impresorascufx.Id) && property.Name != nameof(Impresorascufx.FormFile))
+                    {
+                        var value = property.GetValue(impresorasfx);
+                        property.SetValue(existingEntity, value);
+                    }
+                }
+
+                if(impresorasfx.FormFile != null)
+                {
+                    try
+                    {
+                        existingEntity.ArchivoFai = await _azureStorageService.StoreFileFai(_contenedor, impresorasfx.FormFile)
+                    }
+                    catch(Exception ex)
+                    {
+                        return StatusCode(StatusCodes.Status500InternalServerError, new
+                        {
+                            mensaje = $"Error al subir el archivo: {ex.Message}"
+                        });
+                    }
+                }
+
                 await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Registro editado correctamente" });
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = $"Error interno del servidor: {ex.Message}" });
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    mensaje = $"Error interno del servidor: {ex.Message}",
+                    detalle = ex.StackTrace
+                });
             }
         }
 
