@@ -5,13 +5,11 @@ using System.Collections.Generic;
 
 namespace MesaCore.Models;
 
-public partial class Impresionesestadisticas
+public partial class Impresionesalfx
 {
     public int Id { get; set; }
 
-    public int? FixturesAl { get; set; }
-
-    public int? FixturesCu { get; set; }
+    public string Codigo { get; set; }
 
     public int? Version { get; set; }
 
@@ -26,10 +24,4 @@ public partial class Impresionesestadisticas
     public decimal? PrecioExterno { get; set; }
 
     public decimal? PrecioInterno { get; set; }
-
-    public string Impresora { get; set; }
-
-    public virtual Impresorasfx FixturesAlNavigation { get; set; }
-
-    public virtual Impresorascufx FixturesCuNavigation { get; set; }
 }

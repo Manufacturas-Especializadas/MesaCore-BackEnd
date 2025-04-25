@@ -19,7 +19,9 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Estatusproyectoimpresorasfx> Estatusproyectoimpresorasfx { get; set; }
 
-    public virtual DbSet<Impresionesestadisticas> Impresionesestadisticas { get; set; }
+    public virtual DbSet<Impresionesalfx> Impresionesalfx { get; set; }
+
+    public virtual DbSet<Impresionescufx> Impresionescufx { get; set; }
 
     public virtual DbSet<Impresorascufx> Impresorascufx { get; set; }
 
@@ -71,21 +73,19 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("nombre");
         });
 
-        modelBuilder.Entity<Impresionesestadisticas>(entity =>
+        modelBuilder.Entity<Impresionesalfx>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("pk_ImpresionesEstadisticas");
+            entity.HasKey(e => e.Id).HasName("pk_ImpresionesAlFx");
 
-            entity.ToTable("IMPRESIONESESTADISTICAS");
+            entity.ToTable("IMPRESIONESALFX");
 
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("codigo");
             entity.Property(e => e.Fecha)
                 .HasColumnType("datetime")
                 .HasColumnName("fecha");
-            entity.Property(e => e.FixturesAl).HasColumnName("fixturesAl");
-            entity.Property(e => e.FixturesCu).HasColumnName("fixturesCu");
-            entity.Property(e => e.Impresora)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("impresora");
             entity.Property(e => e.Longitud)
                 .HasColumnType("decimal(18, 0)")
                 .HasColumnName("longitud");
@@ -102,14 +102,37 @@ public partial class AppDbContext : DbContext
                 .HasColumnType("decimal(18, 0)")
                 .HasColumnName("tiempoImpresion");
             entity.Property(e => e.Version).HasColumnName("version");
+        });
 
-            entity.HasOne(d => d.FixturesAlNavigation).WithMany(p => p.Impresionesestadisticas)
-                .HasForeignKey(d => d.FixturesAl)
-                .HasConstraintName("fk_ImpresionesFixturesAl");
+        modelBuilder.Entity<Impresionescufx>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pk_ImpresionesCuFx");
 
-            entity.HasOne(d => d.FixturesCuNavigation).WithMany(p => p.Impresionesestadisticas)
-                .HasForeignKey(d => d.FixturesCu)
-                .HasConstraintName("fk_ImpresionesFixturesCu");
+            entity.ToTable("IMPRESIONESCUFX");
+
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("codigo");
+            entity.Property(e => e.Fecha)
+                .HasColumnType("datetime")
+                .HasColumnName("fecha");
+            entity.Property(e => e.Longitud)
+                .HasColumnType("decimal(18, 0)")
+                .HasColumnName("longitud");
+            entity.Property(e => e.PesoGr)
+                .HasColumnType("decimal(18, 0)")
+                .HasColumnName("pesoGr");
+            entity.Property(e => e.PrecioExterno)
+                .HasColumnType("decimal(18, 0)")
+                .HasColumnName("precioExterno");
+            entity.Property(e => e.PrecioInterno)
+                .HasColumnType("decimal(18, 0)")
+                .HasColumnName("precioInterno");
+            entity.Property(e => e.TiempoImpresion)
+                .HasColumnType("decimal(18, 0)")
+                .HasColumnName("tiempoImpresion");
+            entity.Property(e => e.Version).HasColumnName("version");
         });
 
         modelBuilder.Entity<Impresorascufx>(entity =>

@@ -27,7 +27,11 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[IMPRESIONESESTADISTICAS]",
+         "Name": "[dbo].[IMPRESIONESALFX]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[IMPRESIONESCUFX]",
          "ObjectType": 0
       },
       {

@@ -51,8 +51,6 @@ public partial class Impresorascufx
 
     public virtual Estatusproyectoimpresorasfx EstatusProyecto { get; set; }
 
-    public virtual ICollection<Impresionesestadisticas> Impresionesestadisticas { get; set; } = new List<Impresionesestadisticas>();
-
     public virtual Plantaimpresorasfx Planta { get; set; }
 
     public virtual Solicitanteimpresorafx Solicitante { get; set; }
