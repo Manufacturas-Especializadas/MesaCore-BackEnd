@@ -46,7 +46,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddSingleton<AzureStorageService>();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-builder.Services.AddSingleton<EmailServices>();
+builder.Services.AddTransient<EmailServices>();
 builder.Services.AddSingleton<Encriptar>();
 builder.Services.AddScoped<AuthService>();
 
