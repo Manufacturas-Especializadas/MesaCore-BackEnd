@@ -32,27 +32,27 @@ namespace MesaCore.Controllers
             {
                 return BadRequest("Debe proporcionar un archivo válido.");
             }
-
+        
             try
             {                
                 registro.Archivo = await _azureStorageService.StoreFiles(_contenedor, registro.FormFile);
               
                 _context.Add(registro);
                 await _context.SaveChangesAsync();
-
+        
                 var registroConSolicitante = await _context.Registrodeimpresorasfx
                                                         .Include(r => r.Solicitante)
                                                         .FirstOrDefaultAsync(r => r.Id == registro.Id);
-
+        
                 var emailBody = $@"
                         <h1>Proyecto: {registro.NombreDelProyecto ?? "Sin nombre"}</h1>
                         <p><strong>Solicitante: </strong> {registro.Solicitante?.Nombre ?? "Sin solicitante"}</p>
                         <p><strong>Fecha de solicitud: </strong> {registro.FechaDeSolicitud?.ToString("dd/MM/yyyy") ?? "Sin fecha"}</p>
                         <p><strong>Comentarios: </strong> {registro.Comentarios ?? "Sin comentarios"}</p>
                         <p><strong>Archivo: </strong> {(string.IsNullOrEmpty(registro.Archivo) ? "Sin archivo" : $"<a href='{registro.Archivo}'>Descargar archivo</a>")}</p>";
-
-                await _emailServices.SendEmailAsync("angel.medina@mesa.ms", "Nuevo registro", emailBody);
-
+        
+                await _emailServices.SendEmailAsync("angel.medina@mesa.ms", "Nuevo registro", emailBody);                   
+        
                 return Ok(new
                 {
                     registro.Id,
@@ -65,9 +65,8 @@ namespace MesaCore.Controllers
             }
             catch (Exception ex)
             {
-              return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+                return StatusCode(500, $"Error interno del servidor: {ex.InnerException}");
             }
         }
-
     }
 }
