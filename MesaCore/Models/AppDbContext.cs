@@ -23,11 +23,15 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Impresionescufx> Impresionescufx { get; set; }
 
+    public virtual DbSet<Impresorasalfx> Impresorasalfx { get; set; }
+
     public virtual DbSet<Impresorascufx> Impresorascufx { get; set; }
 
-    public virtual DbSet<Impresorasfx> Impresorasfx { get; set; }
-
     public virtual DbSet<Plantaimpresorasfx> Plantaimpresorasfx { get; set; }
+
+    public virtual DbSet<Proyectosfxcu> Proyectosfxcu { get; set; }
+
+    public virtual DbSet<Proyectosfxsal> Proyectosfxsal { get; set; }
 
     public virtual DbSet<Registrodeimpresorasfx> Registrodeimpresorasfx { get; set; }
 
@@ -87,19 +91,19 @@ public partial class AppDbContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("fecha");
             entity.Property(e => e.Longitud)
-                .HasColumnType("decimal(18, 0)")
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("longitud");
             entity.Property(e => e.PesoGr)
-                .HasColumnType("decimal(18, 0)")
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("pesoGr");
             entity.Property(e => e.PrecioExterno)
-                .HasColumnType("decimal(18, 0)")
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("precioExterno");
             entity.Property(e => e.PrecioInterno)
-                .HasColumnType("decimal(18, 0)")
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("precioInterno");
             entity.Property(e => e.TiempoImpresion)
-                .HasColumnType("decimal(18, 0)")
+                .HasColumnType("decimal(10, 2)")
                 .HasColumnName("tiempoImpresion");
             entity.Property(e => e.Version).HasColumnName("version");
         });
@@ -135,9 +139,63 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Version).HasColumnName("version");
         });
 
+        modelBuilder.Entity<Impresorasalfx>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pk_ImpresorasFx");
+
+            entity.ToTable("IMPRESORASALFX");
+
+            entity.Property(e => e.ArchivoFai)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("archivoFAI");
+            entity.Property(e => e.ClienteId).HasColumnName("clienteId");
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("codigo");
+            entity.Property(e => e.Comentarios)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("comentarios");
+            entity.Property(e => e.EntregaLaboratorio)
+                .HasColumnType("datetime")
+                .HasColumnName("entregaLaboratorio");
+            entity.Property(e => e.EstatusId).HasColumnName("estatusId");
+            entity.Property(e => e.Fai).HasColumnName("FAI");
+            entity.Property(e => e.LiberacionLaboratorio)
+                .HasColumnType("datetime")
+                .HasColumnName("liberacionLaboratorio");
+            entity.Property(e => e.NDibujo)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("n_Dibujo");
+            entity.Property(e => e.NParte)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("n_Parte");
+            entity.Property(e => e.ProyectoId).HasColumnName("proyectoId");
+            entity.Property(e => e.Revision)
+                .HasMaxLength(30)
+                .IsUnicode(false)
+                .HasColumnName("revision");
+
+            entity.HasOne(d => d.Cliente).WithMany(p => p.Impresorasalfx)
+                .HasForeignKey(d => d.ClienteId)
+                .HasConstraintName("fK_impresorasCliente");
+
+            entity.HasOne(d => d.Estatus).WithMany(p => p.Impresorasalfx)
+                .HasForeignKey(d => d.EstatusId)
+                .HasConstraintName("fk_EstatusImpresorasFx");
+
+            entity.HasOne(d => d.Proyecto).WithMany(p => p.Impresorasalfx)
+                .HasForeignKey(d => d.ProyectoId)
+                .HasConstraintName("fk_ImpresoraProyecto");
+        });
+
         modelBuilder.Entity<Impresorascufx>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("pk_ImpresorasCuFx");
+            entity.HasKey(e => e.Id).HasName("pk_ImpresorasFxCu");
 
             entity.ToTable("IMPRESORASCUFX");
 
@@ -145,7 +203,6 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(150)
                 .IsUnicode(false)
                 .HasColumnName("archivoFAI");
-            entity.Property(e => e.ClienteId).HasColumnName("clienteId");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -158,11 +215,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("entregaLaboratorio");
             entity.Property(e => e.EstatusId).HasColumnName("estatusId");
-            entity.Property(e => e.EstatusProyectoId).HasColumnName("estatusProyectoId");
             entity.Property(e => e.Fai).HasColumnName("FAI");
-            entity.Property(e => e.FechaDeLaSolicitud)
-                .HasColumnType("datetime")
-                .HasColumnName("fechaDeLaSolicitud");
             entity.Property(e => e.LiberacionLaboratorio)
                 .HasColumnType("datetime")
                 .HasColumnName("liberacionLaboratorio");
@@ -174,107 +227,19 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("n_Parte");
-            entity.Property(e => e.NombreDelProyecto)
-                .HasMaxLength(150)
-                .IsUnicode(false)
-                .HasColumnName("nombreDelProyecto");
-            entity.Property(e => e.PlantaId).HasColumnName("plantaId");
+            entity.Property(e => e.ProyectoId).HasColumnName("proyectoId");
             entity.Property(e => e.Revision)
                 .HasMaxLength(30)
                 .IsUnicode(false)
                 .HasColumnName("revision");
-            entity.Property(e => e.SolicitanteId).HasColumnName("solicitanteId");
-
-            entity.HasOne(d => d.Cliente).WithMany(p => p.Impresorascufx)
-                .HasForeignKey(d => d.ClienteId)
-                .HasConstraintName("fk_ClienteImprosorasCuFx");
 
             entity.HasOne(d => d.Estatus).WithMany(p => p.Impresorascufx)
                 .HasForeignKey(d => d.EstatusId)
-                .HasConstraintName("fk_EstatusImpresorasCuFx");
+                .HasConstraintName("fk_EstatusImpresorasFxCu");
 
-            entity.HasOne(d => d.EstatusProyecto).WithMany(p => p.Impresorascufx)
-                .HasForeignKey(d => d.EstatusProyectoId)
-                .HasConstraintName("fk_ImpresotasCUProyectoEstatus");
-
-            entity.HasOne(d => d.Planta).WithMany(p => p.Impresorascufx)
-                .HasForeignKey(d => d.PlantaId)
-                .HasConstraintName("fk_PlantaImpresorasCuFx");
-
-            entity.HasOne(d => d.Solicitante).WithMany(p => p.Impresorascufx)
-                .HasForeignKey(d => d.SolicitanteId)
-                .HasConstraintName("fk_SolicitanteImpresorasCuFx");
-        });
-
-        modelBuilder.Entity<Impresorasfx>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("pk_ImpresorasFx");
-
-            entity.ToTable("IMPRESORASFX");
-
-            entity.Property(e => e.ArchivoFai)
-                .HasMaxLength(150)
-                .IsUnicode(false)
-                .HasColumnName("archivoFAI");
-            entity.Property(e => e.ClienteId).HasColumnName("clienteId");
-            entity.Property(e => e.Codigo)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("codigo");
-            entity.Property(e => e.Comentarios)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("comentarios");
-            entity.Property(e => e.EntregaLaboratorio)
-                .HasColumnType("datetime")
-                .HasColumnName("entregaLaboratorio");
-            entity.Property(e => e.EstatusId).HasColumnName("estatusId");
-            entity.Property(e => e.EstatusProyectoId).HasColumnName("estatusProyectoId");
-            entity.Property(e => e.Fai).HasColumnName("FAI");
-            entity.Property(e => e.FechaDeLaSolicitud)
-                .HasColumnType("datetime")
-                .HasColumnName("fechaDeLaSolicitud");
-            entity.Property(e => e.LiberacionLaboratorio)
-                .HasColumnType("datetime")
-                .HasColumnName("liberacionLaboratorio");
-            entity.Property(e => e.NDibujo)
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasColumnName("n_Dibujo");
-            entity.Property(e => e.NParte)
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasColumnName("n_Parte");
-            entity.Property(e => e.NombreDelProyecto)
-                .HasMaxLength(150)
-                .IsUnicode(false)
-                .HasColumnName("nombreDelProyecto");
-            entity.Property(e => e.PlantaId).HasColumnName("plantaId");
-            entity.Property(e => e.Revision)
-                .HasMaxLength(30)
-                .IsUnicode(false)
-                .HasColumnName("revision");
-            entity.Property(e => e.SolicitanteId).HasColumnName("solicitanteId");
-
-            entity.HasOne(d => d.Cliente).WithMany(p => p.Impresorasfx)
-                .HasForeignKey(d => d.ClienteId)
-                .HasConstraintName("fk_ClienteImprosorasFx");
-
-            entity.HasOne(d => d.Estatus).WithMany(p => p.Impresorasfx)
-                .HasForeignKey(d => d.EstatusId)
-                .HasConstraintName("fk_EstatusImpresorasFx");
-
-            entity.HasOne(d => d.EstatusProyecto).WithMany(p => p.Impresorasfx)
-                .HasForeignKey(d => d.EstatusProyectoId)
-                .HasConstraintName("fK_ImpresorasProyectoEstatus");
-
-            entity.HasOne(d => d.Planta).WithMany(p => p.Impresorasfx)
-                .HasForeignKey(d => d.PlantaId)
-                .HasConstraintName("fk_PlantaImpresorasFx");
-
-            entity.HasOne(d => d.Solicitante).WithMany(p => p.Impresorasfx)
-                .HasForeignKey(d => d.SolicitanteId)
-                .HasConstraintName("fk_SolicitanteImpresorasFx");
+            entity.HasOne(d => d.Proyecto).WithMany(p => p.Impresorascufx)
+                .HasForeignKey(d => d.ProyectoId)
+                .HasConstraintName("fk_ImpresoraProyectoCU");
         });
 
         modelBuilder.Entity<Plantaimpresorasfx>(entity =>
@@ -287,6 +252,68 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("nombre");
+        });
+
+        modelBuilder.Entity<Proyectosfxcu>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pk_proyectosCU");
+
+            entity.ToTable("PROYECTOSFXCU");
+
+            entity.Property(e => e.EstatusId).HasColumnName("estatusId");
+            entity.Property(e => e.FechaDeLaSolicitud)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("fechaDeLaSolicitud");
+            entity.Property(e => e.NombreDelProyecto)
+                .HasMaxLength(70)
+                .IsUnicode(false)
+                .HasColumnName("nombreDelProyecto");
+            entity.Property(e => e.PlantaId).HasColumnName("plantaId");
+            entity.Property(e => e.SolicitanteId).HasColumnName("solicitanteId");
+
+            entity.HasOne(d => d.Estatus).WithMany(p => p.Proyectosfxcu)
+                .HasForeignKey(d => d.EstatusId)
+                .HasConstraintName("fk_proyectoEstatusCU");
+
+            entity.HasOne(d => d.Planta).WithMany(p => p.Proyectosfxcu)
+                .HasForeignKey(d => d.PlantaId)
+                .HasConstraintName("fk_proyectoPlantaCU");
+
+            entity.HasOne(d => d.Solicitante).WithMany(p => p.Proyectosfxcu)
+                .HasForeignKey(d => d.SolicitanteId)
+                .HasConstraintName("fk_proyectoSolicitanteCU");
+        });
+
+        modelBuilder.Entity<Proyectosfxsal>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pk_proyectos");
+
+            entity.ToTable("PROYECTOSFXSAL");
+
+            entity.Property(e => e.EstatusId).HasColumnName("estatusId");
+            entity.Property(e => e.FechaDeLaSolicitud)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("fechaDeLaSolicitud");
+            entity.Property(e => e.NombreDelProyecto)
+                .HasMaxLength(70)
+                .IsUnicode(false)
+                .HasColumnName("nombreDelProyecto");
+            entity.Property(e => e.PlantaId).HasColumnName("plantaId");
+            entity.Property(e => e.SolicitanteId).HasColumnName("solicitanteId");
+
+            entity.HasOne(d => d.Estatus).WithMany(p => p.Proyectosfxsal)
+                .HasForeignKey(d => d.EstatusId)
+                .HasConstraintName("fk_proyectoEstatus");
+
+            entity.HasOne(d => d.Planta).WithMany(p => p.Proyectosfxsal)
+                .HasForeignKey(d => d.PlantaId)
+                .HasConstraintName("fk_proyectoPlanta");
+
+            entity.HasOne(d => d.Solicitante).WithMany(p => p.Proyectosfxsal)
+                .HasForeignKey(d => d.SolicitanteId)
+                .HasConstraintName("fk_proyectoSolicitante");
         });
 
         modelBuilder.Entity<Registrodeimpresorasfx>(entity =>

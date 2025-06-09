@@ -6,17 +6,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MesaCore.Models;
 
-public partial class Impresorasfx
+public partial class Impresorasalfx
 {
     public int Id { get; set; }
 
+    public int? ProyectoId { get; set; }
+
     public string Codigo { get; set; }
-
-    public int? PlantaId { get; set; }
-
-    public int? SolicitanteId { get; set; }
-
-    public int? ClienteId { get; set; }
 
     public string NDibujo { get; set; }
 
@@ -32,15 +28,11 @@ public partial class Impresorasfx
 
     public string Comentarios { get; set; }
 
+    public string ArchivoFai { get; set; }
+
     public int? EstatusId { get; set; }
 
-    public string NombreDelProyecto { get; set; }
-
-    public DateTime? FechaDeLaSolicitud { get; set; }
-
-    public int? EstatusProyectoId { get; set; }
-
-    public string ArchivoFai { get; set; }
+    public int? ClienteId { get; set; }
 
     [NotMapped]
     public IFormFile FormFile { get; set; }
@@ -49,9 +41,5 @@ public partial class Impresorasfx
 
     public virtual Estatusimpresorasfx Estatus { get; set; }
 
-    public virtual Estatusproyectoimpresorasfx EstatusProyecto { get; set; }
-
-    public virtual Plantaimpresorasfx Planta { get; set; }
-
-    public virtual Solicitanteimpresorafx Solicitante { get; set; }
+    public virtual Proyectosfxsal Proyecto { get; set; }
 }

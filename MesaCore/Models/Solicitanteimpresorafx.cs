@@ -11,9 +11,9 @@ public partial class Solicitanteimpresorafx
 
     public string Nombre { get; set; }
 
-    public virtual ICollection<Impresorascufx> Impresorascufx { get; set; } = new List<Impresorascufx>();
+    public virtual ICollection<Proyectosfxcu> Proyectosfxcu { get; set; } = new List<Proyectosfxcu>();
 
-    public virtual ICollection<Impresorasfx> Impresorasfx { get; set; } = new List<Impresorasfx>();
+    public virtual ICollection<Proyectosfxsal> Proyectosfxsal { get; set; } = new List<Proyectosfxsal>();
 
     public virtual ICollection<Registrodeimpresorasfx> Registrodeimpresorasfx { get; set; } = new List<Registrodeimpresorasfx>();
 }
