@@ -35,15 +35,23 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[IMPRESORASALFX]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[IMPRESORASCUFX]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[IMPRESORASFX]",
+         "Name": "[dbo].[PLANTAIMPRESORASFX]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[PLANTAIMPRESORASFX]",
+         "Name": "[dbo].[PROYECTOSFXCU]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PROYECTOSFXSAL]",
          "ObjectType": 0
       },
       {
