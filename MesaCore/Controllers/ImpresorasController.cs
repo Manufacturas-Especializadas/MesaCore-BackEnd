@@ -1,4 +1,5 @@
-﻿using MesaCore.Models;
+﻿using MesaCore.Dtos;
+using MesaCore.Models;
 using MesaCore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -32,7 +33,7 @@ namespace MesaCore.Controllers
         {
             try
             {
-                var query = _context.Impresorasfx.AsQueryable();
+                var query = _context.Impresorasalfx.AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(codigo))
                 {
@@ -51,9 +52,8 @@ namespace MesaCore.Controllers
                                .Select(i => new
                                {
                                    i.Id,
-                                   i.Codigo,
-                                   PlantId = i.Planta.Nombre,
-                                   SolicitanteId = i.Solicitante.Nombre,
+                                   NombreProyecto = i.Proyecto.NombreDelProyecto,
+                                   i.Codigo,                                   
                                    ClienteId = i.Cliente.Nombre,
                                    i.NDibujo,
                                    i.NParte,
@@ -81,39 +81,49 @@ namespace MesaCore.Controllers
         [Route("Obtener")]
         public async Task<IActionResult> GetImpresorasCobreAsync()
         {
-            var query = await _context.Impresorasfx
-                .Select(i => new
-                {
-                    i.Id,
-                    i.NombreDelProyecto,
-                    i.FechaDeLaSolicitud,
-                    SolicitanteNombre = i.Solicitante.Nombre,
-                    i.NParte,
-                    EstatusNombre = i.Estatus.Nombre,
-                    EstatusProyecto = i.EstatusProyecto.Nombre
-                })
-                .ToListAsync();
+            var proyectos = await _context.Proyectosfxsal
+         .Where(p => p.NombreDelProyecto != null && p.Impresorasalfx.Any())
+         .Select(p => new ProyectoCardDto
+         {
+             Id = p.Id,
+             NombreDelProyecto = p.NombreDelProyecto,
+             FechaSolicitud = p.FechaDeLaSolicitud,
+             SolicitanteNombre = p.Solicitante.Nombre,
+             PlantaNombre = p.Planta.Nombre,
+             EstatusNombre = p.Estatus.Nombre,
+             Impresiones = p.Impresorasalfx
+                 .Where(i => i.EstatusId.HasValue)
+                 .Select(i => new ImpresoraCardAlDto
+                 {
+                     Id = i.Id,
+                     NParte = i.NParte,
+                     NDibujo = i.NDibujo,
+                     Revision = i.Revision,
+                     EstatusNombre = i.Estatus.Nombre,
+                     NombreDelProyecto = i.Proyecto.NombreDelProyecto,
+                     Solicitante = i.Proyecto.Solicitante.Nombre
+                 })
+                 .ToList()
+         })
+         .ToListAsync();
 
-            var lista = query
-                .GroupBy(i => i.NombreDelProyecto)
-                .Select(g => g.OrderBy(x => x.SolicitanteNombre).First())
-                .OrderBy(i => i.NombreDelProyecto)
-                .ThenBy(i => i.SolicitanteNombre)
-                .ToList();
-
-            if (lista == null)
+            if (!proyectos.Any())
             {
-                throw new Exception("Error al obtener los datos");
+                return Ok(new List<ProyectoCardDto>());
             }
 
-            return Ok(lista);
+            var result = proyectos
+                .OrderBy(p => p.NombreDelProyecto)
+                .ToList();
+
+            return Ok(result);
         }
 
         [HttpGet]
         [Route("ObtenerImpresoraPorId/{id}")]
         public async Task<IActionResult> GetImpresoraPorIdAsync(int id)
         {
-            var impresorId = await _context.Impresorasfx.FirstOrDefaultAsync(i => i.Id == id);
+            var impresorId = await _context.Impresorasalfx.FirstOrDefaultAsync(i => i.Id == id);
 
             if (impresorId == null)
             {
@@ -127,55 +137,68 @@ namespace MesaCore.Controllers
         [Route("ObtenerImpresorasAluminioPorNombreProyecto/{nombreDelProyecto}")]
         public async Task<IActionResult> GetImpresorasPorNombreProyectoAsync(string nombreDelProyecto)
         {
-            var impresoras = await _context.Impresorasfx
-                                        .Where(i => i.NombreDelProyecto == nombreDelProyecto)
-                                        .Select(i => new
-                                        {
-                                            i.Id,
-                                            i.NombreDelProyecto,
-                                            i.Estatus,
-                                            i.Planta,
-                                            i.Solicitante,
-                                            i.Cliente,
-                                            i.NParte,
-                                            i.NDibujo,
-                                            i.Revision,
-                                            i.ArchivoFai,
-                                            i.EstatusProyecto
-                                        })
-                                        .ToListAsync();
-
-            if (impresoras == null || impresoras.Count == 0)
+            if (string.IsNullOrEmpty(nombreDelProyecto))
             {
-                return NotFound("No se encontraron impresoras con este nombre de proyecto.");
+                return BadRequest("EL nombre del proyecto no puede estar vacio");
             }
 
-            var result = impresoras.GroupBy(i => i.NombreDelProyecto).Select(g => new
-            {
-                ID = g.First().Id,
-                EstatusProyecto = g.First().EstatusProyecto.Nombre,
-                nombreDelProyecto = g.Key,
-                Estatus = g.First().Estatus.Nombre,
-                ArchivoFAI = g.First().ArchivoFai,
-                Planta = g.First().Planta.Nombre,
-                Solicitante = g.First().Solicitante.Nombre,
-                Cliente = g.First().Cliente.Nombre,
-                impresiones = g.Select(i => new
+            var proyectoData = await _context.Proyectosfxsal
+                .Where(p => p.NombreDelProyecto == nombreDelProyecto)
+                .Select(p => new
                 {
-                    i.Id,
-                    i.NParte,
-                    i.NDibujo,
-                    i.Revision,
-                    i.Estatus,
-                    i.Planta,
-                    i.Cliente,
-                    i.Solicitante,
-                    i.ArchivoFai,
-                    i.EstatusProyecto
-                }).ToList()
-            }).FirstOrDefault();
+                    Proyecto = new
+                    {
+                        p.Id,
+                        p.NombreDelProyecto,
+                        p.FechaDeLaSolicitud,
+                        EstatusNombre = p.Estatus.Nombre,
+                        PlantaNombre = p.Planta.Nombre,
+                        SolicitanteNombre = p.Solicitante.Nombre
+                    },
+                    Impresiones = p.Impresorasalfx.Select(i => new
+                    {
+                        i.Id,
+                        i.NParte,
+                        i.NDibujo,
+                        i.Revision,
+                        EstatusNombre = i.Estatus.Nombre,
+                    }).ToList()
+                }).FirstOrDefaultAsync();
+
+            if(proyectoData == null)
+            {
+                return NotFound("No se encontró el proyecto");
+            }
+
+            var result = new
+            {
+                proyectoData.Proyecto.Id,
+                proyectoData.Proyecto.NombreDelProyecto,
+                proyectoData.Proyecto.FechaDeLaSolicitud,
+                proyectoData.Proyecto.SolicitanteNombre,
+                proyectoData.Proyecto.PlantaNombre,
+                proyectoData.Proyecto.EstatusNombre,
+                Impresiones = proyectoData.Impresiones
+            };
 
             return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("ObtenerListaProyectosAL")]
+        public async Task<List<Proyectosfxsal>> GetProyectosAlAsync()
+        {
+            var lista = await _context.Proyectosfxsal
+                                        .AsNoTracking()
+                                        .ToListAsync();
+
+            if (lista is null)
+            {
+                throw new Exception("Error al obtener la información");
+            }
+
+
+            return lista;
         }
 
         [HttpGet]
@@ -262,7 +285,7 @@ namespace MesaCore.Controllers
 
         [HttpPost]
         [Route("Registrar")]
-        public async Task<IActionResult> Create([FromForm] Impresorasfx impresora)
+        public async Task<IActionResult> Create([FromForm] Impresorasalfx impresora)
         {
             if (impresora == null)
             {
@@ -280,7 +303,7 @@ namespace MesaCore.Controllers
                     impresora.ArchivoFai = null;
                 }             
 
-                _context.Add(impresora);
+                _context.Impresorasalfx.Add(impresora);
                 await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Registro exitoso" });
@@ -293,20 +316,20 @@ namespace MesaCore.Controllers
 
         [HttpPut]
         [Route("Actualizar/{id}")]
-        public async Task<IActionResult> Edit(int id, [FromForm] Impresorasfx impresorasfx)
+        public async Task<IActionResult> Edit(int id, [FromForm] Impresorasalfx impresorasfx)
         {
             try
             {
-                var existingEntity = await _context.Impresorasfx.FindAsync(id);
+                var existingEntity = await _context.Impresorasalfx.FindAsync(id);
 
                 if (existingEntity == null)
                 {
                     return NotFound(new { message = "Registro no encontrado" });
                 }
 
-                foreach (var property in typeof(Impresorasfx).GetProperties())
+                foreach (var property in typeof(Impresorasalfx).GetProperties())
                 {
-                    if (property.Name != nameof(Impresorasfx.Id) && property.Name != nameof(Impresorasfx.FormFile))
+                    if (property.Name != nameof(Impresorasalfx.Id) && property.Name != nameof(Impresorasalfx.FormFile))
                     {
                         var value = property.GetValue(impresorasfx);
                         property.SetValue(existingEntity, value);
@@ -344,16 +367,16 @@ namespace MesaCore.Controllers
 
         [HttpPatch]
         [Route("ActualizarEstatusProyect/{id:int}")]
-        public async Task<IActionResult> EditProyecto(int id, [FromBody] Impresorasfx request)
+        public async Task<IActionResult> EditProyecto(int id, [FromBody] Impresorasalfx request)
         {
-            var impresoradb = await _context.Impresorasfx.FindAsync(id);
+            var impresoradb = await _context.Impresorasalfx.FindAsync(id);
 
             if(impresoradb is null)
             {
                 return NotFound("Registro no encontrado");
             }
 
-            impresoradb.EstatusProyectoId = request.EstatusProyectoId;
+            //impresoradb.EstatusProyectoId = request.EstatusProyectoId;
 
             try
             {
@@ -376,15 +399,15 @@ namespace MesaCore.Controllers
 
         private bool ImpresorasfxExists(int id)
         {
-            return _context.Impresorasfx.Any(e => e.Id == id);
+            return _context.Impresorasalfx.Any(e => e.Id == id);
         }
 
         [HttpDelete]
         [Route("Eliminar/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var impresora = await _context.Impresorasfx.FirstOrDefaultAsync(i => i.Id == id);
-            _context.Impresorasfx.Remove(impresora!);
+            var impresora = await _context.Impresorasalfx.FirstOrDefaultAsync(i => i.Id == id);
+            _context.Impresorasalfx.Remove(impresora!);
 
             await _context.SaveChangesAsync();
 
