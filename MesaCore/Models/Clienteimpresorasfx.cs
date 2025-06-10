@@ -12,4 +12,6 @@ public partial class Clienteimpresorasfx
     public string Nombre { get; set; }
 
     public virtual ICollection<Impresorasalfx> Impresorasalfx { get; set; } = new List<Impresorasalfx>();
+
+    public virtual ICollection<Impresorascufx> Impresorascufx { get; set; } = new List<Impresorascufx>();
 }

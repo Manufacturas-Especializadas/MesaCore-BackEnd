@@ -79,33 +79,33 @@ namespace MesaCore.Controllers
 
         [HttpGet]
         [Route("Obtener")]
-        public async Task<IActionResult> GetImpresorasCobreAsync()
+        public async Task<IActionResult> GetImpresorasAluminioAsync()
         {
             var proyectos = await _context.Proyectosfxsal
-         .Where(p => p.NombreDelProyecto != null && p.Impresorasalfx.Any())
-         .Select(p => new ProyectoCardDto
-         {
-             Id = p.Id,
-             NombreDelProyecto = p.NombreDelProyecto,
-             FechaSolicitud = p.FechaDeLaSolicitud,
-             SolicitanteNombre = p.Solicitante.Nombre,
-             PlantaNombre = p.Planta.Nombre,
-             EstatusNombre = p.Estatus.Nombre,
-             Impresiones = p.Impresorasalfx
-                 .Where(i => i.EstatusId.HasValue)
-                 .Select(i => new ImpresoraCardAlDto
-                 {
-                     Id = i.Id,
-                     NParte = i.NParte,
-                     NDibujo = i.NDibujo,
-                     Revision = i.Revision,
-                     EstatusNombre = i.Estatus.Nombre,
-                     NombreDelProyecto = i.Proyecto.NombreDelProyecto,
-                     Solicitante = i.Proyecto.Solicitante.Nombre
-                 })
-                 .ToList()
-         })
-         .ToListAsync();
+             .Where(p => p.NombreDelProyecto != null && p.Impresorasalfx.Any())
+             .Select(p => new ProyectoCardDto
+             {
+                 Id = p.Id,
+                 NombreDelProyecto = p.NombreDelProyecto,
+                 FechaSolicitud = p.FechaDeLaSolicitud,
+                 SolicitanteNombre = p.Solicitante.Nombre,
+                 PlantaNombre = p.Planta.Nombre,
+                 EstatusNombre = p.Estatus.Nombre,
+                 Impresiones = p.Impresorasalfx
+                     .Where(i => i.EstatusId.HasValue)
+                     .Select(i => new ImpresoraCardAlDto
+                     {
+                         Id = i.Id,
+                         NParte = i.NParte,
+                         NDibujo = i.NDibujo,
+                         Revision = i.Revision,
+                         EstatusNombre = i.Estatus.Nombre,
+                         NombreDelProyecto = i.Proyecto.NombreDelProyecto,
+                         Solicitante = i.Proyecto.Solicitante.Nombre
+                     })
+                     .ToList()
+             })
+             .ToListAsync();
 
             if (!proyectos.Any())
             {

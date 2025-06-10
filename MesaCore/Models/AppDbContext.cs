@@ -203,6 +203,7 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(150)
                 .IsUnicode(false)
                 .HasColumnName("archivoFAI");
+            entity.Property(e => e.ClienteId).HasColumnName("clienteId");
             entity.Property(e => e.Codigo)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -233,13 +234,17 @@ public partial class AppDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("revision");
 
+            entity.HasOne(d => d.Cliente).WithMany(p => p.Impresorascufx)
+                .HasForeignKey(d => d.ClienteId)
+                .HasConstraintName("fk_impresorasClienteCuFx");
+
             entity.HasOne(d => d.Estatus).WithMany(p => p.Impresorascufx)
                 .HasForeignKey(d => d.EstatusId)
-                .HasConstraintName("fk_EstatusImpresorasFxCu");
+                .HasConstraintName("fk_EstatusImpresorasCuFx");
 
             entity.HasOne(d => d.Proyecto).WithMany(p => p.Impresorascufx)
                 .HasForeignKey(d => d.ProyectoId)
-                .HasConstraintName("fk_ImpresoraProyectoCU");
+                .HasConstraintName("fk_ImpresoraProyectoCu");
         });
 
         modelBuilder.Entity<Plantaimpresorasfx>(entity =>

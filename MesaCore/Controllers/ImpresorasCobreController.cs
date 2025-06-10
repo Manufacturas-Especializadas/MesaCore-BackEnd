@@ -1,4 +1,5 @@
-﻿using MesaCore.Models;
+﻿using MesaCore.Dtos;
+using MesaCore.Models;
 using MesaCore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -32,7 +33,7 @@ namespace MesaCore.Controllers
         {
             try
             {
-                var query = _context.Impresorasalfx.AsQueryable();
+                var query = _context.Impresorascufx.AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(codigo))
                 {
@@ -51,6 +52,7 @@ namespace MesaCore.Controllers
                                .Select(i => new
                                {
                                    i.Id,
+                                   NombreProyecto = i.Proyecto.NombreDelProyecto,
                                    i.Codigo,
                                    ClienteId = i.Cliente.Nombre,
                                    i.NDibujo,
@@ -79,28 +81,42 @@ namespace MesaCore.Controllers
         [Route("Obtener")]
         public async Task<IActionResult> GetImpresorasCobreAsync()
         {
-            var query = await _context.Impresorascufx
-                .Select(i => new
-                {
-                    i.Id,
-                    i.NParte,
-                    EstatusNombre = i.Estatus.Nombre,
-                })
-                .ToListAsync();
+            var proyectos = await _context.Proyectosfxcu
+             .Where(p => p.NombreDelProyecto != null && p.Impresorascufx.Any())
+             .Select(p => new ProyectoCardCUDto
+             {
+                 Id = p.Id,
+                 NombreDelProyecto = p.NombreDelProyecto,
+                 FechaSolicitud = p.FechaDeLaSolicitud,
+                 SolicitanteNombre = p.Solicitante.Nombre,
+                 PlantaNombre = p.Planta.Nombre,
+                 EstatusNombre = p.Estatus.Nombre,
+                 Impresiones = p.Impresorascufx
+                     .Where(i => i.EstatusId.HasValue)
+                     .Select(i => new ImpresoraCardCUDto
+                     {
+                         Id = i.Id,
+                         NParte = i.NParte,
+                         NDibujo = i.NDibujo,
+                         Revision = i.Revision,
+                         EstatusNombre = i.Estatus.Nombre,
+                         NombreDelProyecto = i.Proyecto.NombreDelProyecto,
+                         Solicitante = i.Proyecto.Solicitante.Nombre
+                     })
+                     .ToList()
+             })
+             .ToListAsync();
 
-            //var lista = query
-            //    .GroupBy(i => i.NombreDelProyecto)
-            //    .Select(g => g.OrderBy(x => x.SolicitanteNombre).First())
-            //    .OrderBy(i => i.NombreDelProyecto)
-            //    .ThenBy(i => i.SolicitanteNombre)
-            //    .ToList();
+            if (!proyectos.Any())
+            {
+                return Ok(new List<ProyectoCardCUDto>());
+            }
 
-            //if (lista == null)
-            //{
-            //    throw new Exception("Error al obtener los datos");
-            //}
+            var result = proyectos
+                .OrderBy(p => p.NombreDelProyecto)
+                .ToList();
 
-            return Ok();
+            return Ok(result);
         }
 
         [HttpGet]
@@ -121,45 +137,68 @@ namespace MesaCore.Controllers
         [Route("ObtenerImpresorasCobrePorNombreProyecto/{nombreDelProyecto}")]
         public async Task<IActionResult> GetImpresorasPorNombreProyectoAsync(string nombreDelProyecto)
         {
-            var impresoras = await _context.Impresorasalfx
-                                .Where(i => i.Proyecto.NombreDelProyecto == nombreDelProyecto)
-                                .Select(i => new
-                                {
-                                    i.Id,
-                                    i.Estatus,
-                                    i.Cliente,
-                                    i.NParte,
-                                    i.NDibujo,
-                                    i.Revision,
-                                    i.ArchivoFai,
-                                })
-                                .ToListAsync();
-
-            if (impresoras == null || impresoras.Count == 0)
+            if (string.IsNullOrEmpty(nombreDelProyecto))
             {
-                return NotFound("No se encontraron impresoras con este nombre de proyecto.");
+                return BadRequest("EL nombre del proyecto no puede estar vacio");
             }
 
-            var result = impresoras.GroupBy(i => i.NParte).Select(g => new
-            {
-                ID = g.First().Id,
-                nombreDelProyecto = g.Key,
-                Estatus = g.First().Estatus.Nombre,
-                ArchivoFAI = g.First().ArchivoFai,
-                Cliente = g.First().Cliente.Nombre,
-                impresiones = g.Select(i => new
+            var proyectoData = await _context.Proyectosfxcu
+                .Where(p => p.NombreDelProyecto == nombreDelProyecto)
+                .Select(p => new
                 {
-                    i.Id,
-                    i.NParte,
-                    i.NDibujo,
-                    i.Revision,
-                    i.Estatus,
-                    i.Cliente,
-                    i.ArchivoFai,
-                }).ToList()
-            }).FirstOrDefault();
+                    Proyecto = new
+                    {
+                        p.Id,
+                        p.NombreDelProyecto,
+                        p.FechaDeLaSolicitud,
+                        EstatusNombre = p.Estatus.Nombre,
+                        PlantaNombre = p.Planta.Nombre,
+                        SolicitanteNombre = p.Solicitante.Nombre
+                    },
+                    Impresiones = p.Impresorascufx.Select(i => new
+                    {
+                        i.Id,
+                        i.NParte,
+                        i.NDibujo,
+                        i.Revision,
+                        EstatusNombre = i.Estatus.Nombre,
+                    }).ToList()
+                }).FirstOrDefaultAsync();
+
+            if (proyectoData == null)
+            {
+                return NotFound("No se encontró el proyecto");
+            }
+
+            var result = new
+            {
+                proyectoData.Proyecto.Id,
+                proyectoData.Proyecto.NombreDelProyecto,
+                proyectoData.Proyecto.FechaDeLaSolicitud,
+                proyectoData.Proyecto.SolicitanteNombre,
+                proyectoData.Proyecto.PlantaNombre,
+                proyectoData.Proyecto.EstatusNombre,
+                Impresiones = proyectoData.Impresiones
+            };
 
             return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("ObtenerListaProyectosCu")]
+        public async Task<List<Proyectosfxcu>> GetProyectosCuAsync()
+        {
+            var lista = await _context.Proyectosfxcu
+                                        .AsNoTracking()
+                                        .ToListAsync();
+
+            if (lista is null)
+            {
+                throw new Exception("Error al obtener la información");
+            }
+
+
+            return lista;
         }
 
         [HttpGet]

@@ -32,8 +32,12 @@ public partial class Impresorascufx
 
     public int? EstatusId { get; set; }
 
+    public int? ClienteId { get; set; }
+
     [NotMapped]
     public IFormFile FormFile { get; set; }
+
+    public virtual Clienteimpresorasfx Cliente { get; set; }
 
     public virtual Estatusimpresorasfx Estatus { get; set; }
 
